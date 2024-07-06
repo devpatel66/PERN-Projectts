@@ -40,7 +40,7 @@ function LoginPage() {
                 loginPage ? <div className='text-white w-max'>
                     <div className='flex flex-col  items-center gap-5 border border-slate-500 px-10 py-8 rounded-2xl bg-slate-950 '>
 
-                        <form ref={formRef}>
+                        <form ref={regRef}>
                         <div className='flex flex-col gap-2 items-start'>
                             <label className='px-1 text-orange-200 font-semibold text-2xl '>Email </label>
                             <input type="" name="email" id="" className='bg-transparent w-80 focus:border-orange-200 outline outline-0 border border-slate-300 rounded-2xl px-3 py-2' />
