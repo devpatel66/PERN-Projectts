@@ -8,7 +8,7 @@ import InputPage from './components/inputPage.jsx'
 
 import {Provider} from 'react-redux'
 import { store } from "./components/store/store"
-import LoginPage from './components/loginPage.jsx'
+import LoginPage from './components/UserAuth.jsx'
 // const route = createBrowserRouter([{
 //   path:'/',
 //   element:<InputPage/>
