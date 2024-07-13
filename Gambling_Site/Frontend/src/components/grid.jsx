@@ -3,26 +3,35 @@ import { IoDiamondOutline } from "react-icons/io5";
 import { FaBomb } from "react-icons/fa";
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
+import GridSideBar from './gridSideBar';
+import PopUp from './popUp';
 
 function Grid() {
     const navigate = useNavigate();
-    const amt = useSelector(state => state.amount)
-    const num = useSelector(state => state.gridCols)
+    const amt = useSelector(state => state.amount) || 500
+    const num = useSelector(state => state.gridCols) || 5
     const auth = useSelector(state => state.authenticated)
 
-    if (amt === 0 || num === 0) {
-        navigate('/input')
-    }
+    // if (amt === 0 || num === 0) {
+    //     navigate('/input')
+    // }
 
     const [winningAmt, setWinningAmt] = useState(1)
+    const [gameOver, setGameOver] = useState(false)
+    const [withdraw,setWithdraw] = useState(false)
     const [totalAmt, setTotalAmt] = useState(parseInt(amt))
     const [grid, setGrid] = useState(null)
+    const [hidden, setHidden] = useState("visible")
     const [startOver, setStartOver] = useState(false)
+    
     const mainGrid = useRef(null)
+    const containerRef = useRef(null)
+   const btnWithdraw = useRef(null) 
     const gameOverMsg = useRef(null)
-    const gridSize = [...new Array(num * num)]
+   
+    const gridSize = [...new Array(num * num)] 
     let randomNums = [];
-
+    let round = 2
 
     function generateGrid() {
         let play;
@@ -53,15 +62,14 @@ function Grid() {
     }
 
     useEffect(() => {
-
-        if(auth === false){
-            navigate("/login")
-        }
+        // if(auth === false){
+        //     navigate("/login")
+        // }
         const res = generateGrid()
         setGrid(res)
         console.log(res);
         setStartOver(false)
-    }, [startOver])
+    }, [startOver,mainGrid])
 
     const gridTemplateColumns = {
         gridTemplateColumns: `repeat(${num}, minmax(0, 1fr))`
@@ -69,54 +77,72 @@ function Grid() {
 
     function click(event) {
         event.stopPropagation();
+        console.log("Click")
         console.log("Click Disable !");
     }
 
     const handleStartOver = (e) => {
-        setStartOver(true)
-        console.log("Restarted Game");
-        console.log(mainGrid);
-        gameOverMsg.current.className = "hidden"
-        console.log(mainGrid.current);
-        navigate("/")
+        navigate("/input")
     }
 
     const handleClick = (e, index, obj) => {
+        e.target.addEventListener("click",(e)=>{
+            e.stopPropagation();
+        })
         const newGrid = [...grid]
         newGrid[index] = { ...obj, opened: true }
         if (obj.value === "Bomb") {
+            btnWithdraw.current.disabled = true
             mainGrid.current.addEventListener('click', click);
-            gameOverMsg.current.className = "text-center my-5 p-5 text-wrap text-white text-xl"
-            console.log(mainGrid.current);
+            // mainGrid.current.onclick = true;
+            setGameOver(true)
             console.log("Game Over");
             
         }
         else {
-            let round = 2
+            round *= 1.5
             setWinningAmt(prev => prev*round)
-            setTotalAmt(prev => prev + round)
         }
-
+        
+        // setTotalAmt(prev => prev + winningAmt)
         setGrid(newGrid)
 
     }
 
+    const handleWithdraw = (e)=>{
+        console.log(e.target)
+        setHidden("invisible")
+        setWithdraw(true)
+    }
+    function onCanncel(e){
+        e.preventDefault();
+        console.log(mainGrid.current)
+        setHidden("visible")
+        console.log("conannel")
+        setWithdraw(false)
+    }
+
+    const withdrawAmt=(e)=>{
+        console.log("withdraw")
+    }
+
     return (
         <>
-            <div className='hidden' ref={gameOverMsg}>
-                <p>Game Over</p>
-                <p>You can't able to withdrawal your prize amount</p>
-                <button className='bg-slate-400 rounded-lg px-4 py-2' onClick={(e) => handleStartOver(e)}>Start Over</button>
-            </div>
-            <div className='flex justify-center items-center relative flex-col p-3 border overflow-auto bg-gray-800'>
-                <h1 className='text-white mb-5 text-2xl'>Winning Amount : {winningAmt}</h1>
-                <h1 className='text-white mb-5 text-2xl'>Total Amount : {totalAmt}</h1>
-                <div className='h-full w-max'>
+            {
+               gameOver && <PopUp content={"Game Over"} func1={handleStartOver} subCotent={"You can't able to withdraw your amount!"} btnText='Retry'/>
 
-                    <div style={gridTemplateColumns} ref={mainGrid} className={`grid gap-4 relative`}>
+            }
+            {
+                withdraw && <PopUp func1={withdrawAmt} func2={onCanncel} content={`Your Total Amount is ${winningAmt + totalAmt}`} subCotent={"Are you sure do you want to withdraw ?"} btnText='Submit' btnText2="Cancel"/>
+            }
+            
+            <div ref={containerRef} className={`flex justify-center items-center relative mt-0  flex-col p-3 rounded-xl overflow-auto bg-gray-800 ${hidden}`}>
+                <div className='h-full  w-max'>
+
+                    <div style={gridTemplateColumns} ref={mainGrid} className={`grid gap-2 relative`}>
 
                         {grid ? grid.map((obj, index) => (
-                            <div onClick={(e) => handleClick(e, index, obj)} key={index} className={`bg-slate-600 p-10 h-10 w-10 
+                            <div onClick={(e) => handleClick(e, index, obj)} key={index} className={`rounded-xl bg-slate-600 p-10 h-10 w-10 
                         flex justify-center ${obj.value === "Bomb" ? "text-red-400" : "text-green-400"} items-center`}>
                                 {obj.opened && <p>{obj.icon}</p>}
                                 {/* <p>{obj.icon}</p> */}
@@ -125,6 +151,17 @@ function Grid() {
                     </div>
                 </div>
             </div>
+            <div className='text-white flex flex-col items-center px-5 gap-4 py-5 bg-slate-800 mt-5  rounded-xl w-[30%]'>
+                <div className='flex flex-row-reverse justify-between items-center w-full px-5 py-1'>
+                    <p className='text-left w-1/2 px-3'>Your Bet Amount </p>
+                     <span className=' text-left text-xl w-1/2 p-1 rounded-md bg-slate-600'>{totalAmt}</span>
+                </div>
+                <div className='flex flex-row-reverse justify-between items-center w-full px-5 py-1'>
+                    <p className='text-left w-1/2 px-3'>Your Winning Amount </p>
+                     <span className='bg-slate-600 text-xl rounded-md text-left w-1/2 p-1'>{winningAmt===1?0:winningAmt}</span>
+                </div>
+            </div>
+            <button ref={btnWithdraw}  onClick={handleWithdraw} className='bg-green-500 text-white rounded-xl px-6 py-3 text-xl mt-10'>Withdraw</button>
         </>
     )
 }
