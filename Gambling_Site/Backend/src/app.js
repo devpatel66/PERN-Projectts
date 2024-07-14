@@ -14,4 +14,8 @@ app.use(cors({origin:"*",credentials:true}))
 import userRoute from './routes/userRoutes.js'
 app.use("/api/v1/user",userRoute)
 
+
+import walletRouter from './routes/walletRoutes.js';
+app.use("/api/v1/wallet",walletRouter)
+
 export default app;
