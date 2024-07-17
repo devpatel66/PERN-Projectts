@@ -1,20 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { IoDiamondOutline } from "react-icons/io5";
 import { FaBomb } from "react-icons/fa";
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import GridSideBar from './gridSideBar';
+import { wallet as  walletApi } from '../BackedIntegration/WalletApi';
 import PopUp from './popUp';
+import { setWallet } from './store/Slice';
 
 function Grid() {
+    const dispatch  = useDispatch();
     const navigate = useNavigate();
     const amt = useSelector(state => state.amount) || 500
     const num = useSelector(state => state.gridCols) || 5
-    const auth = useSelector(state => state.authenticated)
-
-    // if (amt === 0 || num === 0) {
-    //     navigate('/input')
-    // }
+    const auth = useSelector(state => state.authenticated);
+    const wallet = useSelector(state=> state.wallet)
+    if (amt === 0 || num === 0) {
+        navigate('/input')
+    }
 
     const [winningAmt, setWinningAmt] = useState(1)
     const [gameOver, setGameOver] = useState(false)
@@ -62,9 +64,9 @@ function Grid() {
     }
 
     useEffect(() => {
-        // if(auth === false){
-        //     navigate("/login")
-        // }
+        if(auth === false){
+            navigate("/login")
+        }
         const res = generateGrid()
         setGrid(res)
         console.log(res);
@@ -113,6 +115,7 @@ function Grid() {
         console.log(e.target)
         setHidden("invisible")
         setWithdraw(true)
+
     }
     function onCanncel(e){
         e.preventDefault();
@@ -122,8 +125,15 @@ function Grid() {
         setWithdraw(false)
     }
 
-    const withdrawAmt=(e)=>{
-        console.log("withdraw")
+    const withdrawAmt= async (e)=>{
+        const total = winningAmt + totalAmt
+        const res = await walletApi.addAmount(total)
+        if(res.statusCode === 200){
+            console.log(res.data);   
+            dispatch(setWallet(res.data))
+            console.log("withdraw")
+            navigate("/input")
+        }
     }
 
     return (
@@ -135,8 +145,9 @@ function Grid() {
             {
                 withdraw && <PopUp func1={withdrawAmt} func2={onCanncel} content={`Your Total Amount is ${winningAmt + totalAmt}`} subCotent={"Are you sure do you want to withdraw ?"} btnText='Submit' btnText2="Cancel"/>
             }
-            
+            {/* <h1 className='text-white'>Wallet Amount : {wallet.amount || 0}</h1> */}
             <div ref={containerRef} className={`flex justify-center items-center relative mt-0  flex-col p-3 rounded-xl overflow-auto bg-gray-800 ${hidden}`}>
+                
                 <div className='h-full  w-max'>
 
                     <div style={gridTemplateColumns} ref={mainGrid} className={`grid gap-2 relative`}>

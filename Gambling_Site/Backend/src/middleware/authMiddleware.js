@@ -16,6 +16,7 @@ const veriifyJwt = asyncHandler(async (req,res,next)=>{
                 new ApiResponse(401,"Unauthorized user")
             )
         }
+        console.log(token)
     
         const decode = jwt.verify(token,"dev12");
         const user = await prisma.user.findFirst({
@@ -30,7 +31,7 @@ const veriifyJwt = asyncHandler(async (req,res,next)=>{
                 refreshToken:false
             }
         })
-    
+        console.log(user)
         if(!user){
             return res.status(401).json(
                 new ApiResponse(401,"Unauthorized User")

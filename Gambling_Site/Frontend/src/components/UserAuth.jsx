@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { user } from '../BackedIntegration/UserApi';
-import { setAuthenicate } from './store/Slice';
+import { setAuthenicate, setWallet } from './store/Slice';
 import { useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
+import { wallet } from '../BackedIntegration/WalletApi';
 
 function LoginPage() {
 
@@ -30,7 +31,9 @@ function LoginPage() {
         const password = formData.get("password");
         try {
             const response = await user.login({email,password});
+            const walletResponse = await wallet.getWallet() || {};
             if(response.statusCode === 200){
+                dispatch(setWallet(walletResponse))
                 dispatch(setAuthenicate(true))
                 navigate("/input")
             }
@@ -73,12 +76,11 @@ function LoginPage() {
         <>
             <h1 className='text-6xl font-extrabold mb-16 text-red-200'>Welcome to Lucky</h1>
             {/* Login Page */}
-
             {
                 loginPage ? <div className='text-white w-max'>
                     <div className='flex flex-col  items-center gap-5 border border-slate-500 px-10 py-8 rounded-2xl bg-slate-950 '>
 
-                        <form ref={formRef}>
+                        <form ref={formRef} className='flex flex-col items-center gap-4'>
                         <div className='flex flex-col gap-2 items-start'>
                             <label className='px-1 text-orange-200 font-semibold text-2xl '>Email </label>
                             <input type="" name="email" id="" className='bg-transparent w-80 focus:border-orange-200 outline outline-0 border border-slate-300 rounded-2xl px-3 py-2' />
@@ -97,7 +99,7 @@ function LoginPage() {
                     <div className='text-white'>
                         <div className='flex flex-col  items-center gap-5 border border-slate-500 px-10 py-8 rounded-2xl bg-slate-950 '>
 
-                         <form ref={regRef}>
+                         <form ref={regRef} className='flex flex-col items-center gap-4'>
                          <div className='flex flex-col gap-2 items-start'>
                                 <label className='px-1 text-orange-200 font-semibold text-2xl '>Name </label>
                                 <input type="" name="name" id="" className='bg-transparent w-80 focus:border-orange-200 outline outline-0 border border-slate-300 rounded-2xl px-3 py-2' />

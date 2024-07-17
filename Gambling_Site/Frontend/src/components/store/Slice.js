@@ -1,9 +1,11 @@
 import {createSlice} from '@reduxjs/toolkit'
+import { wallet } from '../../BackedIntegration/WalletApi';
 
 const initialState = {
     gridCols : 0,
     amount : 0,
-    authenticated:false
+    authenticated:false,
+    wallet:{}
 }
 
 export const playSlice = createSlice({
@@ -22,11 +24,14 @@ export const playSlice = createSlice({
             // state.authenticated = !state.authenticated
             state.authenticated = action.payload;
 
+        },
+        setWallet:(state,action)=>{
+            state.wallet = action.payload;
         }
     }
 })
 
-export const {setAmount,setGrid,setAuthenicate} = playSlice.actions
+export const {setAmount,setGrid,setAuthenicate,setWallet} = playSlice.actions
 
 
 export default playSlice.reducer

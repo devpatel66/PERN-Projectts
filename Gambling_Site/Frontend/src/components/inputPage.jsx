@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { setAmount,setGrid } from './store/Slice';
+import { setAmount,setGrid, setWallet } from './store/Slice';
 import { useSelector } from 'react-redux';
+import { wallet } from '../BackedIntegration/WalletApi';
 function InputPage() {
   const auth = useSelector(state=>state.authenticated)
+  const walletStore = useSelector(state=>state.wallet)
   const navigate = useNavigate();
   console.log(auth)
   useEffect(()=>{
@@ -17,15 +19,24 @@ function InputPage() {
   const selectValue = useRef(null);
   const amountInput = useRef(null);
   const [error,setErrorMsg] = useState();
-  const handleClick = ()=>{
+  
+  
+  const handleClick =async ()=>{
 
     if(!amountInput.current.value){
         amountInput.current.focus()
-        setErrorMsg("Enter Your Wallet Amount")
+        setErrorMsg("Enter Your Bet Amount")
         return;
     }
     const gridCols = selectValue.current.value;
     const amt = amountInput.current.value
+    if(walletStore.amount < amt){
+      setErrorMsg("insufficent Amount in the Wallet")
+      return;
+    }
+    const updatedwallet = await wallet.dedcutAmount(amt,walletStore.id);
+    console.log("Wallet :",updatedwallet)
+    dispatch(setWallet(updatedwallet))
     dispatch(setAmount(amt));
     dispatch(setGrid(gridCols));
     setErrorMsg(null)

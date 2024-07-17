@@ -120,7 +120,6 @@ const updateUser=asyncHandler(async (req,res)=>{
 
 const loginUser=asyncHandler(async (req,res)=>{
     const {email,password} = req.body;
-    console.log(req)
     if(!email){
         return res.status(400).json(
             new ApiResponse(400,"Email is Required")

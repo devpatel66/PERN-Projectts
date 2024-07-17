@@ -78,7 +78,7 @@ const addAmount = asyncHandler(async(req,res)=>{
             id : wallet.id
         },
         data:{
-            amount : amount
+            amount : wallet.amount + amount
         }
     })
 
@@ -93,7 +93,89 @@ const addAmount = asyncHandler(async(req,res)=>{
     )
 })
 
+
+const decductAmt =  asyncHandler(async(req,res)=>{
+    const {amt,walletId} = req.body
+    console.log("wallet :",walletId," Amt : ",amt)
+    if(!amt){
+        return res.status(401).json(
+            new ApiResponse(401,"Amount cannot be empty")
+        )
+    }
+    if(!walletId){
+        return res.status(401).json(
+            new ApiResponse(401,"Wallet  Id is required")
+        )
+    }
+
+    const wallet = await prisma.wallet.findFirst({
+        where:{
+            id:walletId
+        }
+    })
+
+    if(!wallet){
+        return res.status(401).json(
+            new ApiResponse(401,"Wallet does not exists")
+        )
+    }
+
+    if(wallet.amount < amt){
+        return res.status(401).json(
+            new ApiResponse(401,"Insufficent Amount in the Wallet")
+        )
+    }
+
+    const updatedWallet = await prisma.wallet.update({
+        where:{
+            id:walletId
+        },
+        data:{
+            amount : wallet.amount - amt
+        }
+    })
+
+    if(!updatedWallet){
+        return res.status(501).json(
+            new ApiResponse(501,"Can't Update the Wallet || Internal Server Error")
+        )
+    }
+
+    return res.status(501).json(
+        new ApiResponse(200,"Amount deducted Successfully",updatedWallet)
+    )
+})
+
+const getWalletInfo = asyncHandler(async(req,res)=>{
+    const {id} = req.user
+    console.log(id)
+    if(!id){
+        return res.status(401).json(
+            new ApiResponse(401,"Unauthorized User")
+        )
+    }
+
+    const userwallet = await prisma.wallet.findFirst({
+        where:{
+            userId:id
+        }
+    })
+
+    console.log(userwallet)
+    if(!userwallet){
+        return res.status(401).json(
+            new ApiResponse(401,"Wallet not found")
+        )
+    }
+
+    return  res.status(200).json(
+        new ApiResponse(200,"Wallet fetch successfully",userwallet)
+    )
+})
+
 export {
     createWallet,
-    addAmount
+    addAmount,
+    decductAmt,
+    getWalletInfo
 }
