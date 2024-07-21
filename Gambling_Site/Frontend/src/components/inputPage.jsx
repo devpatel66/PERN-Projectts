@@ -13,7 +13,7 @@ function InputPage() {
     if(auth === false){
       navigate("/login")
     }
-  },[])
+  },[walletStore])
 
   const dispatch = useDispatch();
   const selectValue = useRef(null);
@@ -43,10 +43,21 @@ function InputPage() {
     navigate("/play")
     console.log("hello");
   }
+
+  const createWallet = async ()=>{
+    const amount = amountInput.current.value || 0
+    // console.log(amount)
+    const createdWallet = await wallet.createWallet(amount)
+    dispatch(setWallet(createdWallet.data))
+  }
   return (
-    <div className='text-white'>
+    <>
+    
+    {
+      walletStore.id ? 
+      <div className='text-white'>
       <div className=' flex justify-center flex-col items-center h-full'>
-        <h2 className='text-5xl font-bold mb-5 '>Select The Level by Seeing Aukat !!!</h2>
+        <h2 className='text-5xl font-bold mb-5 '>Select The Level!!!</h2>
         <div className='flex justify-evenly items-center mt-10'>
           <div className='flex flex-col gap-2'>
           <select ref={selectValue} className='text-slate-300 bg-slate-800 p-2 rounded-xl mr-5'>
@@ -69,11 +80,23 @@ function InputPage() {
                 <p>2. These game is just and only for enteriment purpose and no real money is innovled in these</p>
                 <p>3. These is just small project. Developed by a college student after learning react</p>
                 <p>4. Anything written in the content is just for enteriment and don't take it seriouly.</p>
-                <p className='text-center mt-10 text-pink-300 text-2xl capitalize'>And I Hope you like these shit gambling game &#10084;</p>
+                <p className='text-center mt-10 text-pink-300 text-2xl capitalize'>And I Hope you like these !!! &#10084;</p>
             </div>
         </div>
       </div>
+    </div> : <div className='text-white flex flex-col justify-center'>
+        <h1 className='text-4xl font-semibold text-orange-400'>Create a wallet to Continue</h1>
+        <div className='relative flex flex-col justify-center w-full items-center  mt-10 gap-2'>
+          <span className='text-green-200 text-left'>You can add Amount later</span>
+          <input ref={amountInput} className='text-slate-300 bg-slate-800 p-2 rounded-xl w-full'  type="number" name="" id="" placeholder='Enter your Wallet Amount'/>
+          {error && <span className='absolute top-10 text-red-500'>{error}</span>}
+          <span className='text-green-200 mt-5 text-left'>Wallet wil created by Simply Click on Below Button</span>
+          <button onClick={createWallet} className='border-0 bg-green-500 font-bold text-lg rounded-2xl  px-6 hover:bg-green-500 py-3 outline-none'>Create Wallet</button>
+          </div>
     </div>
+    }
+    </>
+    
   )
 }
 

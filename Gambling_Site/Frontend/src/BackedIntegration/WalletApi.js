@@ -10,7 +10,7 @@ class Wallet{
                 headers:{
                     'Content-Type':"application/json"
                 },
-                credentials:true,
+                credentials:"include",
                 body:JSON.stringify({amount})
             })
     
@@ -69,12 +69,13 @@ class Wallet{
             let res = await fetch(this.url+"getWalletInfo",{
                 method:"GET",
                 credentials: 'include', 
-            })
+            }) || {};
             res = await res.json();
             console.log(res.data)
-            return res.data
+            return res.data || {}
         } catch (error) {
-            console.log("Error while retriving Wallet Info || ",error.message)
+            // console.log("Error while retriving Wallet Info || ",error.message)
+            return {}
         }
     }
 

@@ -136,7 +136,7 @@ const loginUser=asyncHandler(async (req,res)=>{
             email
         }
     })
-
+    console.log(user.wallet)
     if(!user){
         return res.status(400).json(
             new ApiResponse(401,"User does not exists")
@@ -180,5 +180,33 @@ const loginUser=asyncHandler(async (req,res)=>{
 
 })
 
+const logout= asyncHandler(async (req,res)=>{
+    
+    console.log(req.user)
+    const user = await prisma.user.update({
+        where:{
+            id:req.user.id
+        },
+        data:{
+            refreshToken : ""
+        }
+    })
 
-export {registerUser,updateUser,loginUser}
+
+    if(!user){
+        return res.status(401).json(
+            new ApiResponse(401,"Invalid User")
+        )
+    }
+
+    return res.status(200)
+    .cookie("accessToken","",cookieOptions)
+    .cookie("refreshToken","",cookieOptions)
+    .json(
+        new ApiResponse(200,"Logout Successfully")
+    )
+    
+})
+
+
+export {registerUser,updateUser,loginUser,logout}

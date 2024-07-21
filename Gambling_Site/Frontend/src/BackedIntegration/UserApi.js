@@ -4,22 +4,68 @@ class User{
     }
 
     async login(data){
-        console.log(JSON.stringify(data))
-        let res = await fetch(this.url+"login",{
-            method:"Post",
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Credentials':true
-            },
-            credentials:"include",
-            body:JSON.stringify(data)
-        })
+        try {
+            console.log(JSON.stringify(data))
+            let res = await fetch(this.url+"login",{
+                method:"Post",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Credentials':true
+                },
+                credentials:"include",
+                body:JSON.stringify(data)
+            })
+    
+            let jsonResponse = await res.json();
+    
+            console.log(jsonResponse)
+    
+            return jsonResponse
+        } catch (error) {
+            console.log("Login Error || ",error.message)
+        }
+    }
 
-        let jsonResponse = await res.json();
-
-        console.log(jsonResponse)
-
-        return jsonResponse
+    async register(data){
+        try {
+            console.log(JSON.stringify(data))
+            let res = await fetch(this.url+"register",{
+                method:"Post",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Credentials':true
+                },
+                credentials:"include",
+                body:JSON.stringify(data)
+            })
+    
+            let jsonResponse = await res.json();
+    
+            console.log(jsonResponse)
+    
+            return jsonResponse
+        } catch (error) {
+            console.log("Register Error",error.message)
+        }
+    }
+    async logout(){
+        try {
+            let res = await fetch(this.url+"logout",{
+                method:"Post",
+                headers: {
+                    'Access-Control-Allow-Credentials':true
+                },
+                credentials:"include"
+            })
+    
+            let jsonResponse = await res.json();
+    
+            console.log(jsonResponse)
+    
+            return jsonResponse
+        } catch (error) {
+            console.log("Logout Error",error.message)
+        }
     }
 }
 
